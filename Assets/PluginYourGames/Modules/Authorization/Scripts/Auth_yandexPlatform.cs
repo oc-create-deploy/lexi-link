@@ -1,4 +1,4 @@
-﻿#if YandexGamesPlatform_yg
+﻿#if YandexGamesPlatform_yg && (UNITY_WEBGL || UNITY_EDITOR)
 using UnityEngine;
 using System.Runtime.InteropServices;
 
