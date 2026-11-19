@@ -90,7 +90,7 @@ public class LetterInput : MonoBehaviour
         _inputText = "";
         _pitchMultiplier = 1f;
         
-        _inputTextComp.text = $"СЛОВА «{word}» НЕТ В КРОССВОРДЕ";
+        _inputTextComp.text = $"“{word}” is not in this puzzle";
         _inputTextComp.ForceMeshUpdate();
         _panelRectTransform.sizeDelta = new Vector2(110f + _inputTextComp.textBounds.size.x, _panelRectTransform.sizeDelta.y);
 
@@ -100,7 +100,7 @@ public class LetterInput : MonoBehaviour
     {
         _inputText = "";
         _pitchMultiplier = 1f;
-         _inputTextComp.text = $"СЛОВО «{word}» УЖЕ ОТКРЫТО";
+         _inputTextComp.text = $"“{word}” is already found";
          _inputTextComp.ForceMeshUpdate();
         _panelRectTransform.sizeDelta = new Vector2(110f + _inputTextComp.textBounds.size.x, _panelRectTransform.sizeDelta.y);
     }
@@ -110,7 +110,7 @@ public class LetterInput : MonoBehaviour
         _inputText = "";
         _pitchMultiplier = 1f;
 
-        _inputTextComp.text = $"ВЫБЕРИТЕ БУКВУ ДЛЯ ОТКРЫТИЯ";
+        _inputTextComp.text = $"Choose a letter to reveal";
         _inputTextComp.ForceMeshUpdate();
         _panelRectTransform.sizeDelta = new Vector2(110f + _inputTextComp.textBounds.size.x, _panelRectTransform.sizeDelta.y);
     }
