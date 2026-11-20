@@ -80,6 +80,8 @@ public sealed class NativeQaRecorder : MonoBehaviour
                 {
                     try {object value=Read(c,key);if(value!=null) state.values.Add(new Value{key=type+"."+key,value=Describe(value)});}catch(Exception){}
                 }
+                if(type=="PlayerManager") foreach(string method in new[]{"GetCurrentLevelNum","GetHintWordAmount","GetHintLetterAmount"})
+                { var getter=c.GetType().GetMethod(method);if(getter!=null) state.values.Add(new Value{key=type+"."+method,value=getter.Invoke(c,null).ToString()}); }
                 bool hidden=c.GetComponentsInParent<CanvasGroup>().Any(g=>g.alpha<.1f);
                 if(c is Button b && !hidden)
                 {

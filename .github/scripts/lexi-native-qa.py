@@ -50,10 +50,52 @@ def tap(text):
     assert choices,('Button missing',text)
     action('- tapOn:\n    point: "'+point(choices[0])+'"')
 
-capture('01-startup')
-action('- tapOn:\n    point: "50%, 55%"')
-time.sleep(4)
-capture('02-after-start')
-letters=[i for i in state()['items'] if i['kind']=='letter']
-assert len(letters)>=3,('Native word game did not reach letter input',state()['scene'])
-(out/'result.json').write_text(json.dumps({'nativeStartupAndStartTap':True,'observedLetters':len(letters),'fullWordHintPersistenceAcceptance':'PENDING'},indent=2))
+def value(key):return next(v['value'] for v in state()['values'] if v['key']==key)
+def wait_for(predicate,label):
+    end=time.time()+90
+    while time.time()<end:
+        if predicate():return
+        time.sleep(1)
+    capture('failure-'+label);raise AssertionError(label)
+def xy(x,y):action('- tapOn:\n    point: "'+point({'x':x,'y':y})+'"')
+def gui(x):
+    s=state();scale=s['width']/430
+    top=s['height']-s['safeY']-s['safeH']+27*scale
+    xy(x/430,top/s['height'])
+def enter(word):
+    for char in word:
+        item=next(i for i in state()['items'] if i['kind']=='letter' and i['text']==char)
+        xy(item['x'],item['y'])
+    gui(267);time.sleep(2)
+def remaining():return int(value('SquareManager._numOfWords'))
+capture('01-startup');xy(.5,.55);time.sleep(3);xy(.5,.55);time.sleep(3)
+capture('02-tutorial-dismissed')
+assert int(value('PlayerManager.GetCurrentLevelNum'))==1,'Not a fresh first level'
+# Default drag still receives real input: single-letter gesture cannot solve a word.
+letters=[i for i in state()['items'] if i['kind']=='letter'];n=remaining()
+action('- swipe:\n    start: "'+point(letters[0])+'"\n    end: "50%, 58%"\n    duration: 3000')
+assert remaining()==n,'Single-letter drag changed puzzle'
+gui(105);wait_for(lambda:value('LetterInput.tapMode')=='True','tap-mode')
+enter('АТС');assert remaining()==n,'Invalid word changed remaining count'
+capture('03-invalid-word')
+for word in ['ЛИСА','АИСТ','ЛИСТ','СИЛА']:
+    before=remaining();enter(word)
+    wait_for(lambda:remaining()==before-1,'accepted-'+word)
+    capture('04-word-'+str(before))
+wait_for(lambda:int(value('PlayerManager.GetCurrentLevelNum'))==2,'level-complete')
+capture('05-complete')
+# Relaunch must preserve completed progression, then test and persist real word hint.
+subprocess.run(['xcrun','simctl','terminate',udid,bundle],check=True)
+for p in container.rglob('qa-state.json'):p.unlink()
+subprocess.run(['xcrun','simctl','launch',udid,bundle,'--playabilityQA'],check=True)
+wait_for(lambda:int(value('PlayerManager.GetCurrentLevelNum'))==2,'progress-restored')
+xy(.5,.55);time.sleep(3)
+hints=int(value('PlayerManager.GetHintWordAmount'));before=remaining();tap('WordHintButton')
+wait_for(lambda:int(value('PlayerManager.GetHintWordAmount'))==hints-1 and remaining()==before-1,'word-hint')
+capture('06-hint')
+subprocess.run(['xcrun','simctl','terminate',udid,bundle],check=True)
+for p in container.rglob('qa-state.json'):p.unlink()
+subprocess.run(['xcrun','simctl','launch',udid,bundle,'--playabilityQA'],check=True)
+wait_for(lambda:int(value('PlayerManager.GetHintWordAmount'))==hints-1,'hint-persisted')
+capture('07-restored')
+(out/'result.json').write_text(json.dumps({'fourWordsAccepted':True,'invalidWordRejected':True,'dragInputSmoke':True,'optionalTapInput':True,'levelProgressPersisted':True,'hintUsedAndPersisted':True},indent=2))
