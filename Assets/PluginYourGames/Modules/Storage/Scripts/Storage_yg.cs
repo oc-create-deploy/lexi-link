@@ -80,10 +80,10 @@ namespace YG
 
             saves.idSave++;
 #if !UNITY_EDITOR
-            if (infoYG.Storage.saveLocal)
+            if (infoYG.Storage.saveLocal || Application.platform == RuntimePlatform.IPhonePlayer)
                 YGInsides.SaveLocal();
 
-            if (infoYG.Storage.saveCloud)
+            if (infoYG.Storage.saveCloud && Application.platform != RuntimePlatform.IPhonePlayer)
                 YGInsides.SaveCloud();
 #else
             YGInsides.SaveEditor();
@@ -102,7 +102,9 @@ namespace YG.Insides
         public static void LoadProgress()
         {
 #if !UNITY_EDITOR
-            if (infoYG.Storage.saveCloud)
+            if (Application.platform == RuntimePlatform.IPhonePlayer)
+                LoadLocal();
+            else if (infoYG.Storage.saveCloud)
                 LoadCloud();
             else 
                 LoadLocal();
