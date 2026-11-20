@@ -71,8 +71,8 @@ public sealed class NativeQaRecorder : MonoBehaviour
         {
             Rect safe=Screen.safeArea;
             var state=new Snapshot{scene=SceneManager.GetActiveScene().name,frame=Time.frameCount,width=Screen.width,height=Screen.height,safeX=safe.x,safeY=safe.y,safeW=safe.width,safeH=safe.height,errors=new List<string>(errors)};
-            string[] fields={"Score","Coins","IsPlaying","Remaining","TrayCount","Won","Lost","coins","workers","factories","prestige","best","lane","distance","state","points","recordPoints","playerCount","currentLevel","carryingItem"};
-            string[] models={"MetroDashGame","EmpireIdleGame","MatchscapeGame","GameManager","GameController","GameFlowManager","LevelController","PlayerManager"};
+            string[] fields={"_numOfWords","tapMode","_inputText","Score","Coins","IsPlaying","Remaining","TrayCount","Won","Lost","coins","workers","factories","prestige","best","lane","distance","state","points","recordPoints","playerCount","currentLevel","carryingItem"};
+            string[] models={"SquareManager","LetterInput","MetroDashGame","EmpireIdleGame","MatchscapeGame","GameManager","GameController","GameFlowManager","LevelController","PlayerManager"};
             foreach(MonoBehaviour c in FindObjectsOfType<MonoBehaviour>())
             {
                 if(c==null || !c.isActiveAndEnabled) continue;string type=c.GetType().Name;
