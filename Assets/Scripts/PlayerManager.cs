@@ -82,12 +82,14 @@ public class PlayerManager : MonoBehaviour
     private void OnHintWordUsed()
     {
         YG2.saves.hintAmountWord--;
+        YG2.SaveProgress();
         OnHintAmountChangedAfterUsage?.Invoke();
     }
 
     private void OnHintLetterUsed()
     {
         YG2.saves.hintAmountLetter--;
+        YG2.SaveProgress();
         OnHintAmountChangedAfterUsage?.Invoke();
     }
 
