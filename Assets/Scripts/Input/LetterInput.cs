@@ -10,6 +10,29 @@ public class LetterInput : MonoBehaviour
     [SerializeField] private RectTransform _panelRectTransform;
 
     private string _inputText;
+    // Optional accessible input: tap distinct letters, then explicitly submit.
+    // The existing continuous drag path remains the default.
+    private bool tapMode;
+    private void OnGUI()
+    {
+        if(!isActiveAndEnabled || !gameObject.activeInHierarchy) return;
+        float scale=Screen.width/430f;
+        var style=new GUIStyle(GUI.skin.button);style.fontSize=Mathf.RoundToInt(16*scale);
+        float top=Screen.height-Screen.safeArea.yMax+8*scale;
+        if(GUI.Button(new Rect(12*scale,top,190*scale,38*scale),tapMode?"INPUT: TAP LETTERS":"INPUT: DRAG LETTERS",style))
+        { tapMode=!tapMode;Reset();OnWordEnterEnd?.Invoke(); }
+        if(tapMode)
+        {
+            if(GUI.Button(new Rect(218*scale,top,98*scale,38*scale),"SUBMIT",style)) SubmitWord();
+            if(GUI.Button(new Rect(322*scale,top,96*scale,38*scale),"CLEAR",style)) {Reset();OnWordEnterEnd?.Invoke();}
+        }
+    }
+    private void SubmitWord()
+    {
+        if(string.IsNullOrEmpty(_inputText)) return;
+        OnWordEnterEndWord?.Invoke(_inputText);
+        OnWordEnterEnd?.Invoke();
+    }
 
     
 
@@ -118,7 +141,7 @@ public class LetterInput : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonUp(0) && _inputText != "")
+        if (!tapMode && Input.GetMouseButtonUp(0) && _inputText != "")
         {
             // check if word is valid then reset letter buttons
             OnWordEnterEndWord?.Invoke(_inputText);
